@@ -1,0 +1,8 @@
+Id,firstName,lastName,salary,managerId
+100,John,CEO,150000,
+101,Sarah,Smith,110000,100
+102,Ravi,Kumar,100000,101
+103,Linda,Joseph,90000,102
+104,Bob,Marley,85000,103
+105,Alice,Green,80000,104
+106,David,Longpath,70000,105
