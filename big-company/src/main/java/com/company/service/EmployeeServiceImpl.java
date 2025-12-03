@@ -21,13 +21,12 @@ import java.util.logging.Logger;
  * - There must be exactly one CEO (employee with no manager).
  * - Manager references must point to existing employee IDs.
  * - Assuming there are no cycle in hierarchy. If a cycle is present then improvement needed to code to handle edge cases.
- * - Salary validation assumption: The range of min and max salary is calculated based average of all the employees who are managers.
- * Comparison of underpaid and overpaid is done with all managers and not just peers.
- * A manager is underpaid if their salary is less 20% than the average manager salary.
- * A manager is overpaid if their salary is more 20% than the average manager salary.
+ * - Salary validation assumption: The range of min and max salary is calculated based average of all the subordinates of the managers.
+ * A manager is underpaid if their salary is less 120% than the average.
+ * A manager is overpaid if their salary is more 150% than the average.
  * - Reporting line validation: A reporting line is considered long
- * if there are more than 2 managers between an employee and the CEO.
- * Currently passing the limit as 2 from main method. can take as an argument from console input
+ * if there are more than 4 managers between an employee and the CEO.
+ * Currently passing the limit as 4 from main method. can take as an argument from console input
  * if needed.
  */
 public class EmployeeServiceImpl implements EmployeeService {
@@ -147,23 +146,23 @@ public class EmployeeServiceImpl implements EmployeeService {
         }
     }
 
+    @Override
     public Map<String, List<String>> validateSalaries() {
         List<String> underpaid = new ArrayList<>();
         List<String> overpaid = new ArrayList<>();
-        double avg = employeeMap.values().stream()
-                .filter(this::isManager)
-                .mapToDouble(Employee::getSalary)
-                .average()
-                .orElse(0.0);
-        // salary range +/- 20%
-        double minAllowed = avg * 0.80;
-        double maxAllowed = avg * 1.20;
+
 
         for (Employee manager : employeeMap.values()) {
             if (!isManager(manager)){
                 continue;
             }
+            double avg = manager.getSubordinates().stream()
+                    .mapToDouble(Employee::getSalary)
+                    .average()
+                    .orElse(0.0);
 
+            double minAllowed = avg * 1.20;
+            double maxAllowed = avg * 1.50;
             if (manager.getSalary() < minAllowed) {
                 String msg = String.format(
                         "%s (%s) is underpaid by %.2f",
@@ -211,6 +210,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         return count;
     }
 
+    @Override
     public List<String> validateReportingLines(int limit) {
         List<String> output = new ArrayList<>();
         for (Employee e : employeeMap.values()) {

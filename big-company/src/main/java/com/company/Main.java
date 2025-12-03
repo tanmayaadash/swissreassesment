@@ -1,5 +1,6 @@
 package com.company;
 
+import com.company.service.EmployeeService;
 import com.company.service.EmployeeServiceImpl;
 
 import java.io.FileNotFoundException;
@@ -16,11 +17,6 @@ public class Main {
     private static final Logger LOG = Logger.getLogger(Main.class.getName());
 
     public static void main(String[] args) {
-
-        // configure console logging
-        Logger root = Logger.getLogger("");
-        root.setLevel(Level.INFO);
-        for (var h : root.getHandlers()) h.setLevel(Level.INFO);
 
         Scanner scanner = new Scanner(System.in);
 
@@ -39,12 +35,12 @@ public class Main {
                 throw new FileNotFoundException("File not found: " + csv.toAbsolutePath());
             }
 
-            EmployeeServiceImpl svc = new EmployeeServiceImpl();
-            svc.loadEmployees(csv);
+            EmployeeService employeeService = new EmployeeServiceImpl();
+            employeeService.loadEmployees(csv);
 
             System.out.println("\n=== Salary Violations ===");
 
-            Map<String, List<String>> salaryMap = svc.validateSalaries();
+            Map<String, List<String>> salaryMap = employeeService.validateSalaries();
 
             List<String> underpaid = salaryMap.get("underpaid");
             List<String> overpaid = salaryMap.get("overpaid");
@@ -64,7 +60,7 @@ public class Main {
             }
 
             System.out.println("\n=== Reporting Line Issues ===");
-            List<String> longLines = svc.validateReportingLines(2);
+            List<String> longLines = employeeService.validateReportingLines(4);
             if (longLines.isEmpty()) System.out.println("None");
             else longLines.forEach(System.out::println);
 

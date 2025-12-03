@@ -45,23 +45,36 @@ public class EmployeeServiceImplTest {
     }
 
     @Test
-    void testUnderpaidOverpaidLogic() throws Exception {
+    void testUnderpaidOverpaidMangers() throws Exception {
+
         String csv = """
-                Id,firstName,lastName,salary,managerId
-                100,John,CEO,150000,
-                101,Sarah,Smith,20000,100
-                102,Ravi,Kumar,300000,100
-                103,Worker,One,50000,102
-            """;
+        Id,firstName,lastName,salary,managerId
+        100,John,CEO,150000,
+        101,Sarah,Smith,20000,100
+        102,Ravi,Kumar,200000,100
+        
+        201,Emp,One,30000,101
+        202,Emp,Two,40000,101
+        
+        301,Emp,Three,50000,102
+        302,Emp,Four,55000,102
+        """;
 
         EmployeeServiceImpl svc = new EmployeeServiceImpl();
         svc.loadFromFile(new StringReader(csv));
 
         Map<String, List<String>> result = svc.validateSalaries();
 
-        assertEquals(1, result.get("underpaid").size());
-        assertEquals(1, result.get("overpaid").size());
+        List<String> underpaid = result.get("underpaid");
+        List<String> overpaid  = result.get("overpaid");
+
+        assertEquals(1, underpaid.size(), "Expected 1 underpaid manager");
+        assertEquals(1, overpaid.size(), "Expected 1 overpaid manager");
+
+        assertTrue(underpaid.get(0).contains("101"), "Sarah (101) should be underpaid");
+        assertTrue(overpaid.get(0).contains("102"), "Ravi (102) should be overpaid");
     }
+
 
     @Test
     void testReportingLineValidation() throws Exception {
@@ -73,16 +86,17 @@ public class EmployeeServiceImplTest {
         4,L4,Manager,130000,3
         5,L5,Manager,120000,4
         6,Worker,Six,50000,5
+        7,Worker,Six,50000,6
         """;
 
         EmployeeServiceImpl svc = new EmployeeServiceImpl();
         svc.loadFromFile(new StringReader(csv));
 
-        List<String> issues = svc.validateReportingLines(2);
+        List<String> issues = svc.validateReportingLines(4);
 
-        assertEquals(2, issues.size());
-        assertTrue(issues.get(0).contains("LONG"));
-        assertTrue(issues.get(1).contains("6")); // ensure correct employee flagged
+        assertEquals(1, issues.size());
+        assertEquals(1, issues.size(), "Should detect one long reporting line");
+        assertTrue(issues.get(0).contains("7"));
     }
 
 
