@@ -1,16 +1,38 @@
-# big-company
-Simple Maven project to validate company org structure and salary rules.
+# Employee Salary & Reporting Line Validator
 
-How to build:
-```
-mvn clean package
-```
+This project validates employees from a CSV file based on two business rules:
 
-How to run:
-```
-java -cp target/big-company-1.0-SNAPSHOT.jar com.company.Main path/to/employees.csv
-```
+1. **Salary Validation**  
+2. **Reporting Line Validation**
 
-Notes:
-- Logging uses java.util.logging (no external dependencies).
-- Validation includes malformed lines, duplicate IDs, missing manager references, cycles and negative salaries.
+It also includes CSV parsing, hierarchy building, underpaid/overpaid manager detection, and reporting-line depth checks.
+
+---
+
+## 📌 Features
+
+### ✔ CSV Parsing & Validation
+- Validates structure, columns, salary format, and uniqueness.
+- Detects missing CEO, duplicate IDs, and unknown managers.
+- Ensures non-negative salary values.
+
+### ✔ Salary Compliance Rules
+- Only employees **who manage others** are considered managers.
+- Average manager salary is computed across all managers.
+- A manager is:
+  - **Underpaid** if salary < 80% of average manager salary  
+  - **Overpaid** if salary > 120% of average manager salary  
+
+### ✔ Reporting Line Validation
+- Counts managers **between** an employee and the CEO.
+- Flags employees with a reporting depth greater than a configurable limit (default = 2).
+
+### ✔ Modular Architecture
+- CSV reading, parsing, validation, and hierarchy-building are separated for clarity.
+- Well-structured `EmployeeService` interface + implementation.
+- Ready for extension (e.g., JSON, database, multiple input formats).
+
+---
+
+## 📂 Project Structure
+
